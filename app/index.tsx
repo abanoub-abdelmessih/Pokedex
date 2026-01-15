@@ -1,133 +1,85 @@
-import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
-
-interface PokemonListItem {
-  name: string;
-  url: string;
-}
-
-interface Pokemon {
-  name: string;
-  front_image: string;
-  back_image: string;
-  types: PokemonType[];
-}
-
-interface PokemonType {
-  type: {
-    name: string;
-    url: string;
-  };
-}
-
-const colorsByType: Record<string, string> = {
-  normal: "#A8A77A",
-  fire: "#EE8130",
-  water: "#6390F0",
-  electric: "#F7D02C",
-  grass: "#7AC74C",
-  ice: "#96D9D6",
-  fighting: "#C22E28",
-  poison: "#A33EA1",
-  ground: "#E2BF65",
-  flying: "#A98FF3",
-  psychic: "#F95587",
-  bug: "#A6B91A",
-  rock: "#B6A136",
-  ghost: "#735797",
-  dragon: "#6F35FC",
-  dark: "#705746",
-  steel: "#B7B7CE",
-  fairy: "#D685AD",
-};
+import React from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { PokemonCard } from "../components/PokemonCard";
+import { usePokemon } from "../hooks/usePokemon";
 
 export default function Index() {
-  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
-  useEffect(() => {
-    // fetch pokemons
-    fetchPokemons();
-  }, []);
+  const { pokemons, loading, error, refetch } = usePokemon();
 
-  async function fetchPokemons() {
-    // Fetch main pokemon data
-    const response = await fetch("https://pokeapi.co/api/v2/pokemon/?limit=10");
-    const data = await response.json();
-
-    const detailedPokemons = await Promise.all(
-      data.results.map(async (pokemon: PokemonListItem) => {
-        const res = await fetch(pokemon.url);
-        const details = await res.json();
-        return {
-          name: pokemon.name,
-          front_image: details.sprites.front_default,
-          back_image: details.sprites.back_default,
-          types: details.types,
-        };
-      })
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
     );
-
-    setPokemons(detailedPokemons);
   }
 
-  type PokemonTypeName = keyof typeof colorsByType;
-
-  function getPokemonColor(types: PokemonType[]): string {
-    const primaryType = types[0]?.type.name as PokemonTypeName | undefined;
-    return primaryType ? colorsByType[primaryType] + 50 : "#AAA";
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+        <Text style={styles.retryText} onPress={() => refetch()}>
+          Tap to retry
+        </Text>
+      </View>
+    );
   }
 
   return (
-    <FlatList
-      data={pokemons}
-      keyExtractor={(item) => item.name}
-      contentContainerStyle={{ gap: 16, padding: 16 }}
-      renderItem={({ item }) => (
-        <Link
-          href={{ pathname: "/details", params: { name: item.name } }}
-          style={{
-            backgroundColor: getPokemonColor(item.types),
-            padding: 20,
-            borderRadius: 20,
-          }}
-        >
-          <View>
-            {/* Name */}
-            <Text style={styles.name}>{item.name}</Text>
-
-            {/* Types */}
-            <Text style={styles.type}>
-              {item.types.map((t) => t.type.name).join(", ")}
-            </Text>
-
-            {/* Images */}
-            <View style={{ flexDirection: "row", justifyContent: "center" }}>
-              <Image
-                source={{ uri: item.front_image }}
-                style={{ width: 120, height: 120 }}
-              />
-              <Image
-                source={{ uri: item.back_image }}
-                style={{ width: 120, height: 120 }}
-              />
-            </View>
-          </View>
-        </Link>
-      )}
-    />
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <FlatList
+        data={pokemons}
+        keyExtractor={(item) => item.name}
+        contentContainerStyle={styles.listContent}
+        numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        renderItem={({ item }) => <PokemonCard pokemon={item} />}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  name: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
   },
-  type: {
-    fontSize: 20,
+  header: {
+    fontSize: 32,
     fontWeight: "bold",
-    color: "gray",
-    textAlign: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    color: "#333",
+  },
+  listContent: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
+  },
+  errorText: {
+    fontSize: 18,
+    color: "red",
+    marginBottom: 8,
+  },
+  retryText: {
+    fontSize: 16,
+    color: "blue",
+    textDecorationLine: "underline",
   },
 });

@@ -5,7 +5,7 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       <Stack>
-        <Stack.Screen name="index" options={{ title: "Home" }} />
+        <Stack.Screen name="index" options={{ title: "Pokedex" }} />
         <Stack.Screen
           name="details"
           options={{
