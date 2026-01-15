@@ -16,3 +16,24 @@ export interface Pokemon {
   back_image: string;
   types: PokemonType[];
 }
+
+export interface PokemonStat {
+  base_stat: number;
+  stat: {
+    name: string;
+  };
+}
+
+export interface PokemonAbility {
+  ability: {
+    name: string;
+  };
+}
+
+export interface PokemonDetails extends Pokemon {
+  id: number;
+  height: number;
+  weight: number;
+  stats: PokemonStat[];
+  abilities: PokemonAbility[];
+}
