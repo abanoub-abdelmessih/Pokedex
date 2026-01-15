@@ -3,7 +3,8 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 interface Pokemon {
   name: string;
-  image: string;
+  front_image: string;
+  back_image: string;
 }
 
 export default function Index() {
@@ -24,7 +25,8 @@ export default function Index() {
         const details = await res.json();
         return {
           name: pokemon.name,
-          image: details.sprites.front_default,
+          front_image: details.sprites.front_default,
+          back_image: details.sprites.back_default,
         };
       })
     );
@@ -36,11 +38,20 @@ export default function Index() {
     <ScrollView>
       {pokemons.map((pokemon) => (
         <View key={pokemon.name}>
+          {/* Pokemon Name */}
           <Text>{pokemon.name}</Text>
-          <Image
-            source={{ uri: pokemon.image }}
-            style={{ width: 100, height: 100 }}
-          />
+
+          {/* Images View */}
+          <View style={{ flexDirection: "row" }}>
+            <Image
+              source={{ uri: pokemon.front_image }}
+              style={{ width: 150, height: 150 }}
+            />
+            <Image
+              source={{ uri: pokemon.back_image }}
+              style={{ width: 150, height: 150 }}
+            />
+          </View>
         </View>
       ))}
     </ScrollView>
