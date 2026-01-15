@@ -84,7 +84,7 @@ export default function Index() {
       contentContainerStyle={{ gap: 16, padding: 16 }}
       renderItem={({ item }) => (
         <Link
-          href={"/Details"}
+          href={{ pathname: "/details", params: { name: item.name } }}
           style={{
             backgroundColor: getPokemonColor(item.types),
             padding: 20,
