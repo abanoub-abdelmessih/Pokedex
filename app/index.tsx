@@ -1,15 +1,48 @@
-import { Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, ScrollView, Text, View } from "react-native";
+
+interface Pokemon {
+  name: string;
+  image: string;
+}
 
 export default function Index() {
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  useEffect(() => {
+    // fetch pokemons
+    fetchPokemons();
+  }, []);
+
+  async function fetchPokemons() {
+    // Fetch main pokemon data
+    const response = await fetch("https://pokeapi.co/api/v2/pokemon/?limit=10");
+    const data = await response.json();
+
+    const detailedPokemons = await Promise.all(
+      data.results.map(async (pokemon: any) => {
+        const res = await fetch(pokemon.url);
+        const details = await res.json();
+        return {
+          name: pokemon.name,
+          image: details.sprites.front_default,
+        };
+      })
+    );
+
+    setPokemons(detailedPokemons);
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-    </View>
+    <ScrollView>
+      {pokemons.map((pokemon) => (
+        <View key={pokemon.name}>
+          <Text>{pokemon.name}</Text>
+          <Image
+            source={{ uri: pokemon.image }}
+            style={{ width: 100, height: 100 }}
+          />
+        </View>
+      ))}
+    </ScrollView>
   );
 }
