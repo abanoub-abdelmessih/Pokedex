@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 
@@ -82,33 +83,36 @@ export default function Index() {
       keyExtractor={(item) => item.name}
       contentContainerStyle={{ gap: 16, padding: 16 }}
       renderItem={({ item }) => (
-        <View
+        <Link
+          href={"/Details"}
           style={{
             backgroundColor: getPokemonColor(item.types),
             padding: 20,
             borderRadius: 20,
           }}
         >
-          {/* Name */}
-          <Text style={styles.name}>{item.name}</Text>
+          <View>
+            {/* Name */}
+            <Text style={styles.name}>{item.name}</Text>
 
-          {/* Types */}
-          <Text style={styles.type}>
-            {item.types.map((t) => t.type.name).join(", ")}
-          </Text>
+            {/* Types */}
+            <Text style={styles.type}>
+              {item.types.map((t) => t.type.name).join(", ")}
+            </Text>
 
-          {/* Images */}
-          <View style={{ flexDirection: "row", justifyContent: "center" }}>
-            <Image
-              source={{ uri: item.front_image }}
-              style={{ width: 120, height: 120 }}
-            />
-            <Image
-              source={{ uri: item.back_image }}
-              style={{ width: 120, height: 120 }}
-            />
+            {/* Images */}
+            <View style={{ flexDirection: "row", justifyContent: "center" }}>
+              <Image
+                source={{ uri: item.front_image }}
+                style={{ width: 120, height: 120 }}
+              />
+              <Image
+                source={{ uri: item.back_image }}
+                style={{ width: 120, height: 120 }}
+              />
+            </View>
           </View>
-        </View>
+        </Link>
       )}
     />
   );
